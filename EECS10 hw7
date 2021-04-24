@@ -1,0 +1,172 @@
+/* PhotoLab.c: Assignment 7 for EECS 10, Fall 2019 */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define WIDTH 480
+#define HEIGHT 360
+#define SLEN 80
+
+/* function headers */
+void PrintMenu(void);
+
+int LoadImage(const char fname[SLEN], unsigned char R[WIDTH][HEIGHT], unsigned char G[WIDTH][HEIGHT], unsigned char B[WIDTH][HEIGHT]);
+
+int SaveImage(const char fname[SLEN], unsigned char R[WIDTH][HEIGHT], unsigned char G[WIDTH][HEIGHT], unsigned char B[WIDTH][HEIGHT]);
+
+void BlackWhite(unsigned char R[WIDTH][HEIGHT], unsigned char G[WIDTH][HEIGHT], unsigned char B[WIDTH][HEIGHT]);
+
+void Negative(unsigned char R[WIDTH][HEIGHT], unsigned char G[WIDTH][HEIGHT], unsigned char B[WIDTH][HEIGHT]);
+
+void HFlip(unsigned char R[WIDTH][HEIGHT], unsigned char G[WIDTH][HEIGHT], unsigned char B[WIDTH][HEIGHT]);
+
+void HMirror(unsigned char R[WIDTH][HEIGHT], unsigned char G[WIDTH][HEIGHT], unsigned char B[WIDTH][HEIGHT]);
+
+void Zoomin(unsigned char R[WIDTH][HEIGHT], unsigned char G[WIDTH][HEIGHT], unsigned char B[WIDTH][HEIGHT]);
+
+void Sharpen(unsigned char R[WIDTH][HEIGHT], unsigned char G[WIDTH][HEIGHT], unsigned char B[WIDTH][HEIGHT]);
+
+void ExRG(unsigned char R[WIDTH][HEIGHT], unsigned char G[WIDTH][HEIGHT], unsigned char B[WIDTH][HEIGHT]);
+
+void AddNoise(unsigned char R[WIDTH][HEIGHT], unsigned char G[WIDTH][HEIGHT], unsigned char B[WIDTH][HEIGHT], int percentage);
+
+void Overlay(unsigned char R[WIDTH][HEIGHT], unsigned char G[WIDTH][HEIGHT], unsigned char B[WIDTH][HEIGHT]);
+
+void AddBorder(unsigned char R[WIDTH][HEIGHT], unsigned char G[WIDTH][HEIGHT], unsigned char B[WIDTH][HEIGHT], int r, int g, int b, int bwidth);
+
+void Aging(unsigned char R[WIDTH][HEIGHT], unsigned char G[WIDTH][HEIGHT], unsigned char B[WIDTH][HEIGHT]);
+
+void AutoTest(unsigned char R[WIDTH][HEIGHT], unsigned char G[WIDTH][HEIGHT], unsigned char B[WIDTH][HEIGHT]);
+
+/* main */
+int main(void)
+{
+  /* RGB channels */
+  unsigned char R[WIDTH][HEIGHT];
+  unsigned char G[WIDTH][HEIGHT];
+  unsigned char B[WIDTH][HEIGHT];
+  
+  int i=0;                   // user input
+  int r,g,b,bw;              // parameters needed for the function border
+  char fname[SLEN];          // name of the input image file
+  unsigned int percentage;   // the parameter needed for the function AddNoise
+
+  /* main loop: loop-switch */
+  while (i!=14)
+  {
+    PrintMenu();
+    scanf("%d",&i);
+    
+    switch (i)
+    {
+      case 1:
+      {
+        printf("Please input the file name to load: ");
+        scanf("%s",fname);
+        LoadImage(fname, R, G, B);
+        break;
+      }
+      
+      case 2:
+      {
+        printf("Please input the file name to save: ");
+        scanf("%s",fname);
+        SaveImage(fname, R, G, B);
+        break;
+      }
+      
+      case 3:
+      {
+        BlackWhite(R, G, B);
+        printf("\"Black & White\" operation is done!");
+        break;
+      }
+      
+      case 4:
+      {
+        Negative(R, G, B);
+        printf("\"Negative\" operation is done!\n");
+        break;
+      }
+      
+      case 5:
+      {
+        HFlip(R, G, B);
+        printf("\"HFlip\" operation is done!\n");
+        break;
+      }
+      
+      case 6:
+      {
+        HMirror(R, G, B);
+        printf("\"HMirror\" operation is done!\n");
+        break;
+      }
+      
+      case 7:
+      {
+        Zoomin(R, G, B);
+        printf("\"Zoom\" operation is done!\n");
+        break;
+      }
+      
+      case 8:
+      {
+        Sharpen(R, G, B)j;
+        printf("\"Sharpen\" operation is done!\n");
+        break;
+      }
+      
+      case 9:
+      {
+        ExRG(R, G, B);
+        printf("\"Exchange RG\" operation is done!\n");
+        break;
+      }
+      
+      case 10:
+      {
+        srand(0);
+        percentage = rand()%100;
+        AddNoise(R, G, B, percentage);
+        printf("\"AddNoise\" operation is done!\n");
+        break;
+      }
+      
+      case 11:
+      {
+        Overlay(R, G, B);
+        printf("\"Add Overlay\" operation is done!\n");
+        break;
+      }
+      
+      case 12:
+      {
+        printf("Enter the R value of the border color(0 to 255): ");
+        scanf("%d",&r);
+        printf("Enter the G value of the border color(0 to 255): ");
+        scanf("%d",&g);
+        printf("Enter the B value of the border color(0 to 255): ");
+        scanf("%d",&b);
+        printf("Enter the width of the border: ");
+        scanf("%d",&bw);
+        AddBorder(R, G, B, r, g, b, bw);
+        printf("\"Add Border\" operation is done!\n");
+        break;
+      }
+      
+      case 13:
+      {
+        AutoTest(R, G, B);
+        break;
+      }
+      
+      case 14: continue;
+    }//switch
+  }//while
+  
+  return 0;
+}
+
+/* function implementation */
