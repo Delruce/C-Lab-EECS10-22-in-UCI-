@@ -1,3 +1,5 @@
+/* review on the style of coding: monotonous and repetitive */
+
 /* PhotoLab.c: Assignment 7 for EECS 10, Fall 2019 */
 
 #include <stdio.h>
