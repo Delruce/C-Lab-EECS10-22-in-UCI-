@@ -172,3 +172,208 @@ int main(void)
 }
 
 /* function implementation */
+
+int LoadImage(const char fname[SLEN], unsigned char R[WIDTH][HEIGHT], unsigned char G[WIDTH][HEIGHT], unsigned char B[WIDTH][HEIGHT])
+{
+  FILE *File;
+  char Type[SLEN];
+  int Width, Height, MaxValue;
+  int x,y;
+  char ftype[] = ".ppm";
+  char fname_text[SLEN + sizeof(ftype)];
+  
+  strcpy(fname_ext, fname);
+  strcat(fname_ext, ftype);
+  
+  File = fopen(fname_ext, "r");
+  if (!File) {
+    printf("\nCannot open file \"%s\" for reading!\n", fname);
+    return 1;
+  }
+  fscanf(File, "%79s", Type);
+  if (Type[0] != 'p' || Type[1]!= '6' || Type[2] != 0) {
+    printf("\nUnsupported file format!\n");
+    return 2;
+  }
+  fscanf(File, "%d", &Width);
+  if (Width != WIDTH) {
+    printf("\nUnsupported image width %d!\n", Width);
+    return 3;
+  }
+  fscanf(File, "%d", &Height);
+  if (Height != HEIGHT) {
+    printf("\nUnsupported image height %d!\n", Height);
+    return 4;
+  }
+  fscanf(File, "%d", &MaxValue);
+  if (MaxValue != 255) {
+    printf("\nUnsupported image maximum value %d!\n", MaxValue);
+    return 5;
+  }
+  if ('\n' != fgetc(File)) {
+    printf("\nCarriage return expected!\n");
+    return 6;
+  }
+  for (y = 0; y < HEIGHT; y++) {
+    for (x = 0; x < WIDTH; x++) {
+      R[x][y] = fgetc(File);
+      G[x][y] = fgetc(File);
+      B[x][y] = fgetc(File);
+    }
+  }
+  if (ferror(File)) {
+    printf("\nFile error while reading from file!\n");
+    return 7;
+  }
+  printf("%s was read successfully!\n", fname_ext);
+  fclose(File);
+  return 0;
+}
+
+int Save Image(const char fname[SLEN], unsigned char R[WIDTH][HEIGHT], unsigned char G[WIDTH][HEIGHT], unsigned char B[WIDTH][HEIGHT])
+{
+  FILE *File;
+  char ftype[] = ".ppm";
+  char fname_ext[SLEN + sizeof(ftype)];
+  char SysCmd[SLEN * 5];
+  int x,y;
+  
+  strcpy(fname_ext, fname);
+  strcat(fname_ext, ftype);
+  
+  File = fopen(fname_ext, "w");
+  if (!File) {
+    printf("\nCannot open file \"%s\" for writing!\n", fname);
+    return 1;
+  }
+  fprintf(File, "P6\n");
+  fprintf(File, "%d %d\n", WIDTH, HEIGHT);
+  fprintf(File, "255\n");
+  
+  for (y = 0; y < HEIGHT; y++) {
+    for (x = 0; x < WIDTH; x++) {
+      fputc(R[x][y], File);
+      fputc(G[x][y], File);
+      fputc(B[x][y], File);
+    }
+  }
+  
+  if (ferror(File)) {
+    printf("\nFile error while writing to file!\n");
+    return 2;
+  }
+  fclose(File);
+  printf("%s was saved successfully. \n", fname_ext);
+  
+  /*
+    rename file to image.ppm, convert it to ~/public_html/<fname>.jpg
+    and make it world readable
+  */
+  
+  sprintf(SysCmd, "~eecs10/bin/pnmtojpeg.tcsh %s", fname_ext);
+  if (system(SysCmd) != 0) {
+    printf("\nError while converting to JPG:\nCommand \"%s\" failed!\n", SysCmd);
+    return 3;
+  }
+  printf("%s.jpg was stored for viewing. \n", fname);
+  
+  return 0;
+}
+
+/* age the image to make it look like old picture */
+void Aging(unsigned char R[WIDTH][HEIGHT], unsigned char G[WIDTH][HEIGHT], unsigned char B[WIDTH][HEIGHT])
+{
+  int x,y;
+  
+  for (y = 0; y < HEIGHT; y++) {
+    for (x = 0; x < WIDTH; x++) {
+      B[x][y] = (R[x][y] + G[x][y] + B[x][y])/5;
+      R[x][y] = (unsigned char) (B[x][y]*1.6);
+      G[x][y] = (unsigned char) (B[x][y]*1.6);
+    }
+  }
+}
+
+/* Test all functions */
+void AutoTest(unsigned char R[WIDTH][HEIGHT], unsigned char G[WIDTH][HEIGHT], unsigned char B[WIDTH][HEIGHT])
+{
+  LoadImage("Iceland", R, G, B);
+  Aging(R, G, B);
+  SaveImage("aging", R, G, B);
+  printf("Aging tested!\n\n");
+  
+  /* add more tests here */
+  LoadImage("Iceland", R, G, B);
+  BlackNWhite(R, G, B);
+  SaveImage("bw", R, G, B);
+  printf("Black % White tested!\n\n");
+  
+  LoadImage("Iceland", R, G, B);
+  Negative(R, G, B);
+  SaveImage("negative", R, G, B);
+  printf("Negative tested!\n\n");
+  
+  LoadImage("Iceland", R, G, B);
+  HFlip(R, G, B);
+  SaveImage("negative", R, G, B);
+  printf("Negative tested!\n\n");
+  
+  LoadImage("Iceland", R, G, B);
+  HMirror(R, G, B);
+  SaveImage("negative", R, G, B);
+  printf("Negative tested!\n\n");
+  
+  LoadImage("Iceland", R, G, B);
+  Zoomin(R, G, B);
+  SaveImage("negative", R, G, B);
+  printf("Negative tested!\n\n");
+  
+  LoadImage("Iceland", R, G, B);
+  Sharpen(R, G, B);
+  SaveImage("negative", R, G, B);
+  printf("Negative tested!\n\n");
+  
+  LoadImage("Iceland", R, G, B);
+  ExRG(R, G, B);
+  SaveImage("negative", R, G, B);
+  printf("Negative tested!\n\n");
+  
+  LoadImage("Iceland", R, G, B);
+  AddNoise(R, G, B);
+  SaveImage("negative", R, G, B);
+  printf("Negative tested!\n\n");
+  
+  LoadImage("Iceland", R, G, B);
+  Overlay(R, G, B);
+  SaveImage("negative", R, G, B);
+  printf("Negative tested!\n\n");
+  
+  LoadImage("Iceland", R, G, B);
+  AddBorder(R, G, B);
+  SaveImage("negative", R, G, B);
+  printf("Negative tested!\n\n");
+}
+
+void PrintMenu()
+{
+  printf("---------------------------------------\n");
+  printf(" 1: Load a PPM image\n");
+  printf(" 2: Save the image in PPM and JPEG format\n");
+  printf(" 3: Change the color image to black and white\n");
+  printf(" 4: Make a negative of the image\n");
+  printf(" 5: Flip the image horizontally\n");
+  printf(" 6: Mirror the image horizontally\n");
+  printf(" 7: Zoom into the image\n");
+  printf(" 8: Sharpen the image\n");
+  printf(" 9: Exchange the red and green color channels\n");
+  printf(" 10: Add noise to an image\n");
+  printf(" 11: Add overlay to an image\n");
+  printf(" 12: Add border to an image\n");
+  printf(" 13: Test all functions\n");
+  printf(" 14: Exit\n");
+  printf("---------------------------------------\n");
+  printf("Please make your choice: ");
+}
+
+void BlackNWhite(unsigned char )
+
